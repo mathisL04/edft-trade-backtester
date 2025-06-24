@@ -41,50 +41,71 @@ This project is a fully automated Python-based pipeline for **backtesting**, **v
 
 ---
 
-## Flow of Tool:
+## Z-Score Based Outlier Flagging
 
-[User Input: Trade Date]  
-         │  
-         ▼  
-[Load Trade Files from Local Directory]  
-         │  
-         ▼  
-[Ignore Weekend Dates and Future Dates]  
-         │  
-         ▼  
-[Filter Out Invalid Trades]  
-  (Zero volume / Zero hedge / Prompt trades / Past delivery trades)  
-         │  
-         ▼  
-[Fetch EDFT Reference Prices from Snowflake]  
-         │  
-         ▼  
-[Label Each Trade]  
-  (Quarter / Month / Week / Load Shape / Product Label)  
-         │  
-         ▼  
-[Match Trade Product + Load Shape with EDFT Prices]  
-         │  
-         ▼  
-[Compare Traded Price vs EDFT Price]  
-         │  
-         ▼  
-[Calculate EDFT_Diff = TradedPrice − EDFT_Price]  
-         │  
-         ▼  
-[Export Cleaned Power & Gas Trade Files as CSV]  
-         │  
-         ▼  
-[Load Cleaned CSV Files for Z-Score Flagging]  
-         │  
-         ▼  
-[Calculate Z-score of EDFT_Diff for Each Trade]  
-         │  
-         ▼  
-[Flag Trades where |Z-score| > 2.5]  
-         │  
-         ▼  
-[Export Excel File with Highlighted Outliers]
+Once the trade data is matched with EDFT benchmark prices and cleaned, we apply a statistical flagging system using **Z-score analysis**. This method detects trades whose price deviation is significantly different from the average.
+
+### 🔹 Z-Score Formula
+
+We calculate the Z-score for each trade using the formula:
+
+
+Where:
+- `x` = `EDFT_Diff` = `TradedPrice − EDFT_Price`
+- `μ` = mean of `EDFT_Diff` values in the dataset
+- `σ` = standard deviation of `EDFT_Diff`
+
+---
+
+### 🔹 Flagging Logic
+
+A trade is flagged as an outlier if:
+
+
+This threshold filters trades with extreme deviations from the market benchmark (EDFT price), relative to the distribution of all trades on that day.
+
+---
+
+### 🔹 Why Z-Score? (vs. Fixed Thresholds)
+
+The Z-score method adapts to the statistical nature of each dataset. Compared to using a fixed value threshold (e.g. `price difference > £2`), it offers:
+
+- **Adaptiveness** – scales with the dataset's internal variability
+- **Robustness** – highlights outliers regardless of trade volume or product
+- **Consistency** – applicable across different dates, products, and markets
+
+---
+
+### 🔹 Output
+
+Flagged trades are exported to Excel files with:
+- Computed Z-scores
+- `True/False` flag indicator
+- Color-coded rows for rapid review
+
+--- 
+
+## Flow of Tool:
+[User Input Date]
+       ↓
+[Load Trade Files]
+       ↓
+[Clean & Filter Trades]
+       ↓
+[Fetch EDFT Prices (Snowflake)]
+       ↓
+[Assign Labels (Product, Load Shape)]
+       ↓
+[Calculate Price Difference: Traded − EDFT]
+       ↓
+[Export Cleaned Output to CSV]
+       ↓
+[Z-Score Analysis on EDFT_Diff]
+       ↓
+[Flag Outliers |Z| > 2.5]
+       ↓
+[Export Highlighted Excel Files]
+
 
 
 ## ⚙️ Dependencies
