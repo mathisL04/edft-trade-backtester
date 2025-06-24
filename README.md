@@ -41,6 +41,52 @@ This project is a fully automated Python-based pipeline for **backtesting**, **v
 
 ---
 
+## Flow of Tool:
+
+[User Input: Trade Date]  
+         │  
+         ▼  
+[Load Trade Files from Local Directory]  
+         │  
+         ▼  
+[Ignore Weekend Dates and Future Dates]  
+         │  
+         ▼  
+[Filter Out Invalid Trades]  
+  (Zero volume / Zero hedge / Prompt trades / Past delivery trades)  
+         │  
+         ▼  
+[Fetch EDFT Reference Prices from Snowflake]  
+         │  
+         ▼  
+[Label Each Trade]  
+  (Quarter / Month / Week / Load Shape / Product Label)  
+         │  
+         ▼  
+[Match Trade Product + Load Shape with EDFT Prices]  
+         │  
+         ▼  
+[Compare Traded Price vs EDFT Price]  
+         │  
+         ▼  
+[Calculate EDFT_Diff = TradedPrice − EDFT_Price]  
+         │  
+         ▼  
+[Export Cleaned Power & Gas Trade Files as CSV]  
+         │  
+         ▼  
+[Load Cleaned CSV Files for Z-Score Flagging]  
+         │  
+         ▼  
+[Calculate Z-score of EDFT_Diff for Each Trade]  
+         │  
+         ▼  
+[Flag Trades where |Z-score| > 2.5]  
+         │  
+         ▼  
+[Export Excel File with Highlighted Outliers]
+
+
 ## ⚙️ Dependencies
 
 - Python 3.8+
