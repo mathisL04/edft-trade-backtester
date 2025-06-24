@@ -4,27 +4,31 @@ import os
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill, Font
 
-# === CONFIGURATION ===
 input_base_dir = r'R:\Project 1\Output Trades (Tableau)'
 output_dir = r'R:\Project 1\Output Calculations'
 
-# File setup
+
+trade_date = input("Enter the trade date in format DDMMMYY: ").upper()
+
 files = {
     'POWER': {
-        'input': os.path.join(input_base_dir, 'output_power_trades_20JUN25.csv'),
-        'output': os.path.join(output_dir, 'POWER_20JUN25_Zscores.xlsx')
+        'input': os.path.join(input_base_dir, f'output_power_trades_{trade_date}.csv'),
+        'output': os.path.join(output_dir, f'POWER_{trade_date}_Zscores.xlsx')
     },
     'GAS': {
-        'input': os.path.join(input_base_dir, 'output_gas_trades_20JUN25.csv'),
-        'output': os.path.join(output_dir, 'GAS_20JUN25_Zscores.xlsx')
+        'input': os.path.join(input_base_dir, f'output_gas_trades_{trade_date}.csv'),
+        'output': os.path.join(output_dir, f'GAS_{trade_date}_Zscores.xlsx')
     }
 }
 
-# === FUNCTION TO PROCESS EACH FILE ===
 def process_trade_file(input_csv_path, output_excel_path, label):
-    print(f"\n📊 Processing {label} data...")
+    print(f"\n Processing {label} data...")
 
-    df = pd.read_csv(input_csv_path)
+    try:
+        df = pd.read_csv(input_csv_path)
+    except FileNotFoundError:
+        print(f" File not found for {label}: {input_csv_path}")
+        return
 
     if 'EDFT_Diff' in df.columns and 'TradeID' in df.columns:
         mean_diff = df['EDFT_Diff'].mean()
@@ -41,7 +45,6 @@ def process_trade_file(input_csv_path, output_excel_path, label):
         output_df = df[['TradeID', 'EDFT_Diff', 'Zscore', 'Flagged']]
         output_df.to_excel(output_excel_path, index=False)
 
-        # Apply formatting
         wb = load_workbook(output_excel_path)
         ws = wb.active
         red_fill = PatternFill(start_color='FFC7CE', end_color='FFC7CE', fill_type='solid')
@@ -55,10 +58,9 @@ def process_trade_file(input_csv_path, output_excel_path, label):
                 ws[f'D{row}'].font = green_font
 
         wb.save(output_excel_path)
-        print(f"Z-score results saved and highlighted at:\n{output_excel_path}")
+        print(f" Z-score results saved and highlighted at:\n{output_excel_path}")
     else:
-        print(f"Required columns missing in {label} input file: {input_csv_path}")
+        print(f" Required columns missing in {label} input file: {input_csv_path}")
 
-# === RUN BOTH ===
 process_trade_file(files['POWER']['input'], files['POWER']['output'], 'POWER')
 process_trade_file(files['GAS']['input'], files['GAS']['output'], 'GAS')
