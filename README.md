@@ -86,25 +86,19 @@ Flagged trades are exported to Excel files with:
 --- 
 
 ## Flow of Tool:
+## ⚙️ Processing Flow
+
+```text
 [User Input Date]
        ↓
-[Load Trade Files]
+[Load Trade Logs]
        ↓
 [Clean & Filter Trades]
        ↓
-[Fetch EDFT Prices (Snowflake)]
+[Fetch EDFT Prices]
        ↓
-[Assign Labels (Product, Load Shape)]
-       ↓
-[Calculate Price Difference: Traded − EDFT]
-       ↓
-[Export Cleaned Output to CSV]
-       ↓
-[Z-Score Analysis on EDFT_Diff]
-       ↓
-[Flag Outliers |Z| > 2.5]
-       ↓
-[Export Highlighted Excel Files]
+[Match, Analyze, Flag]
+
 
 
 
