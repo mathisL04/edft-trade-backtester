@@ -100,7 +100,6 @@ Flagged trades are exported to Excel files with:
 [Match, Analyze, Flag]
 
 
-```text
 ## ⚙️ Dependencies
 
 - Python 3.8+
